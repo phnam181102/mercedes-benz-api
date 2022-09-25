@@ -1,12 +1,20 @@
 const express = require("express");
-var morgan = require("morgan");
+const morgan = require("morgan");
 const app = express();
 const port = 3000;
 
-app.use(morgan("combined"));
+app.use(
+    express.urlencoded({
+        extended: true,
+    })
+);
+app.use(express.json());
+
+// HTTP logger
+// app.use(morgan("combined"));
 
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+    res.render("home");
 });
 
 app.listen(port, () => {
