@@ -3,11 +3,11 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const app = express();
-const port = 3000;
-
-const route = require('./routes');
 
 dotenv.config();
+const PORT = process.env.PORT || 3000;
+
+const route = require('./routes');
 const db = require('./config/db');
 
 // Connect to DB
@@ -26,6 +26,6 @@ app.use(morgan('combined'));
 // Routes init
 route(app);
 
-app.listen(port, () => {
-    console.log(`Server running on port: http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running on port: http://localhost:${PORT}`);
 });
