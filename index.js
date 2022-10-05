@@ -8,11 +8,10 @@ const port = 3000;
 const route = require('./routes');
 
 dotenv.config();
+const db = require('./config/db');
 
-mongoose
-    .connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB!'))
-    .catch((err) => console.log(err.message));
+// Connect to DB
+db.connect();
 
 app.use(
     express.urlencoded({
