@@ -122,7 +122,6 @@ const userController = {
                 email: email,
                 password: passwordHash,
                 verified: false,
-                role: 1,
             });
 
             let user = await newUser.save();
