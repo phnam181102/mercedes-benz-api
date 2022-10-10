@@ -2,23 +2,9 @@ const User = require('../models/User');
 const UserVerification = require('../models/UserVerification');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const dotenv = require('dotenv');
-const { resolve } = require('path');
-
-dotenv.config();
+const sendVerificationEmail = require('./sendVerificationEmail');
 
 let refreshTokens = [];
-
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.AUTH_EMAIL,
-        pass: process.env.AUTH_PASS,
-    },
-});
 
 const userController = {
     getAllUser: async (req, res) => {
@@ -37,63 +23,7 @@ const userController = {
     registerUser: async (req, res) => {
         try {
             const { username, email, password } = req.body;
-            const sendVerificationEmail = ({ _id, email }, res) => {
-                const currentUrl = 'http://localhost:3000/';
-                const uniqueString = uuidv4() + _id;
-                const mailOptions = {
-                    from: process.env.AUTH_EMAIL,
-                    to: email,
-                    subject: 'Verification Your Email',
-                    html: `<p>Verify your email address to complete the signup and login into your account.</p><p>This link <b>expires in 6 hours</b>.</p><p>Press <a href=${
-                        currentUrl + 'api/users/verify/' + _id + '/' + uniqueString
-                    }>here</a> to proceed.</p>`,
-                };
-
-                const saltRounds = 10;
-                bcrypt
-                    .hash(uniqueString, saltRounds)
-                    .then((hashedUniqueString) => {
-                        const newVerification = new UserVerification({
-                            userId: _id,
-                            uniqueString: hashedUniqueString,
-                            createdAt: Date.now(),
-                            expiresAt: Date.now() + 21600000,
-                        });
-
-                        newVerification
-                            .save()
-                            .then(() => {
-                                transporter
-                                    .sendMail(mailOptions)
-                                    .then(() => {
-                                        res.json({
-                                            status: 'PENDING',
-                                            message: 'Verification email sent',
-                                        });
-                                    })
-                                    .catch((err) => {
-                                        console.log(err);
-                                        res.json({
-                                            status: 'FAILED',
-                                            message: 'Verification email failed',
-                                        });
-                                    });
-                            })
-                            .catch((err) => {
-                                console.log(err);
-                                res.json({
-                                    status: 'FAILED',
-                                    message: "Could't save verification email data!",
-                                });
-                            });
-                    })
-                    .catch(() => {
-                        res.json({
-                            status: 'FAILED',
-                            message: 'An error occurred while hashing email data!',
-                        });
-                    });
-            };
+            
 
             if (!username || !email || !password) {
                 return res.status(400).json({
@@ -111,7 +41,7 @@ const userController = {
 
             if (findEmail) {
                 return res.status(400).json({
-                    errMessage: 'This email already exists',
+                    message: 'This email already exists',
                 });
             }
 
@@ -125,8 +55,14 @@ const userController = {
             });
 
             let user = await newUser.save();
-
-            sendVerificationEmail(user, res);
+            
+            let url = "api/users/verify/";
+            sendVerificationEmail(
+              user,
+              "complete the signup and login into your account",
+              url,
+              res
+            );
         } catch (err) {
             console.log(err);
             return res.status(500).json({
@@ -275,6 +211,36 @@ const userController = {
             });
         }
     },
+    forgotPassword: async (req, res) => {
+        try {
+            const {email} = req.body
+            const user = await User.findOne({email})
+            if (!user) return res.status(400).json({message: "This email does not exist."})
+
+            const url = `api/users/reset/`;
+
+            sendVerificationEmail(user, "to reset the password in your account", url, res);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                message: "Error from the server",
+            });
+        }
+    },
+    resetPassword: async (req, res) => {
+        try {
+            const {password} = req.body
+            const passwordHash = await bcrypt.hash(password, 12)
+            
+            await User.findByIdAndUpdate({_id: req.user.id}, {
+                password: passwordHash
+            })
+
+            res.json({message: "Password successfully changed!"})
+        } catch (error) {
+            return res.status(500).json({ msg: error.message });
+        }
+    },
     generateAccessToken: (user) => {
         return jwt.sign(
             {
@@ -321,10 +287,25 @@ const userController = {
             res.status(200).json({ accessToken: newAccessToken });
         });
     },
+    updateUser: async (req, res) => {
+        try {
+            const {username} = req.body
+            await User.findOneAndUpdate({_id: req.user.id}, {
+                username
+            })
+
+            res.json({message: "Update Success!"})
+        } catch (error) {
+            console.log(err);
+            return res.status(500).json({
+                message: "Error from the server",
+            });
+        }
+    },
     deleteUser: async (req, res) => {
         try {
             const user = await User.findByIdAndDelete(req.params._id);
-            resolve({
+            res.status(400).json({
                 message: 'Delete user success!',
                 user: user,
             });
