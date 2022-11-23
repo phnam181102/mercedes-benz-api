@@ -4,14 +4,16 @@ const slug = require('mongoose-slug-generator');
 const CarSchema = mongoose.Schema(
     {
         name: { type: String, required: true },
-        avatar: { type: String, required: true },
-        backdrop_path: { type: String },
-        detailImages: { type: Array, required: true },
-        price: { type: Number, required: true },
+        price: { type: String, required: true },
+        avatar: { type: Array },
+        detailImages: { type: Array },
         keyFeatures: { type: Array },
-        range: { type: Number },
-        topSpeed: { type: Number },
-        chargingTime: { type: Number },
+        range: { type: String },
+        topSpeed: { type: String },
+        chargingTime: { type: String },
+        modelType: { type: String },
+        bodyType: { type: String },
+        new: { type: String },
         slug: { type: String, slug: 'name', unique: true },
     },
     {

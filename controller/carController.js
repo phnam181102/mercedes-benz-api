@@ -20,17 +20,28 @@ const carController = {
     create: async (req, res, next) => {
         const car = new Car(req.body);
 
+        car.avatar = [req.body.avatar1, req.body.avatar2];
+
+        car.keyFeatures = [
+            'Pearl White Paint',
+            '19’’ Gemini Wheels',
+            'All Black Premium Interior',
+            'Five Seat Interior',
+            'Full Self-Driving Capability',
+            'Acceleration Boost',
+        ];
+
         try {
             const savedCar = await car.save();
-            res.json(savedCar);
+            res.redirect(`http://localhost:3001/adminpanel/`);
         } catch (err) {
             res.json({ message: err });
         }
     },
     update: async (req, res, next) => {
         try {
-            const updatedCar = await Car.updateOne({ _id: req.params.id }, req.body);
-            res.json(updatedCar);
+            const updatedCar = await Car.updateOne({ slug: req.params.slug }, req.body);
+            res.redirect(`http://localhost:3001/adminpanel/`);
         } catch (err) {
             res.json({ message: err });
         }
@@ -38,7 +49,7 @@ const carController = {
     delete: async (req, res, next) => {
         try {
             const removedCar = await Car.findByIdAndDelete(req.params.id);
-            res.send(`Delete the car with id: ${req.params.id} successfully!!!`);
+            res.redirect(`http://localhost:3001/adminpanel/`);
         } catch (err) {
             res.json({ message: err });
         }

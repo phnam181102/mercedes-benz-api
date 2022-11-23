@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/phnam181102/mercedes-benz-clone.git"
+    "url": "git+https://github.com/phnam181102/mercedes-benz-api.git"
   },
   "keywords": [
     "mercedes",
@@ -18,9 +18,9 @@
   "author": "Ten gi cung duoc",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/phnam181102/mercedes-benz-clone/issues"
+    "url": "https://github.com/phnam181102/mercedes-benz-api/issues"
   },
-  "homepage": "https://github.com/phnam181102/mercedes-benz-clone#readme",
+  "homepage": "https://github.com/phnam181102/mercedes-benz-api#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
@@ -32,11 +32,9 @@
     "mongoose": "^6.6.1",
     "mongoose-delete": "^0.5.4",
     "mongoose-slug-generator": "^1.0.4",
-    "nodemailer": "^6.8.0",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.20"
+    "nodemailer": "^6.8.0",
+    "nodemon": "^2.0.20",
+    "uuid": "^9.0.0"
   }
 }
